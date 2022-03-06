@@ -1,0 +1,23 @@
+{
+  "name": "youtubeDownloader",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "express": "^4.17.3",
+    "express-validation": "^3.0.8",
+    "ffmpeg-static": "^5.0.0",
+    "lodash": "^4.17.21",
+    "sanitize-filename": "^1.6.3",
+    "ytdl-core": "^4.10.1"
+  }
+}
