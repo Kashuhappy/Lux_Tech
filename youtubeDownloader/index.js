@@ -1,11 +1,14 @@
 const express = require('express');
-const {chain, last} = require('lodash');
+const {chain, last, forEach} = require('lodash');
 const {validate, Joi} = require('express-validation');
 const ytdl = require('ytdl-core');
 const {spawn} = require('child_process');
-const ffmepeyPath = require('ffmpeg-static');
+const sanitize = require('sanitize-filename');
+const ffmpegPath = require('ffmpeg-static');
 
-const ytdl = require('ytdl-core')
+const ytdl = require('ytdl-core');
+const { isDeepStrictEqual } = require('util');
+const { exitCode } = require('process');
 
 const app = express()
 
@@ -66,7 +69,13 @@ app.get(
 
                 const streams = {}
                 if (format === 'video') {
-                    const resolution = parseInt(req.query.resolution)
+                    const resolution = parseInt(req.query.resolution);
+
+                    const resolution = getResolutions(formats)
+
+                    if (resolutions.includes(resolution)) {
+                        return next(new Error('Resolutions is incorrect'))
+                    }
 
                     const videoFormat = chain(formats)
                         .filter(({height, videoCodec}) => (
@@ -83,6 +92,23 @@ app.get(
                 if (format === 'audio') {
                     streams.audio = ytdl(id, {quality: 'highestaudio'})
                 }
+
+                const exts = {
+                    video: 'mp4',
+                    audio: 'mp3',
+                }
+
+                const contentTypes = {
+                    video: 'video/mp4',
+                    audio: 'audio/mpeg'
+                }
+
+                const ext = exts[format]
+                const contentType = contentTypes[format]
+                const filename = '${encodeURI(sanitize(title))}.${ext}'
+
+                res.setHead er('Content-Type', contentType)
+                res.setHeader('Content-Disposition', 'attachment;filename=${filename}; filename*=utf=8','${filename}')
 
                 const pipes = {
                     out: 1,
@@ -101,7 +127,7 @@ app.get(
                         '-c:a', 'libmp3lane',
                         'crf', '27',
                         '-preset', 'veryfast',
-                        'movflats', 'frag_keyframe+empty_moov',
+                        '-movflags', 'frag_keyframe+empty_moov',
                         '-f', 'mp4'
                     ],
                     audio: [
@@ -122,18 +148,54 @@ app.get(
                     '-'
                 ]
 
-                const ffmpegProcess = span(
-                    ffmpegPath, 
-                )
+                const ffmpegProcess = spawn(
+                    ffmpegPath,
+                    ffmpegOptions,
+                    {
+                        stdio: ['pipe', 'pipe', 'pipe', 'pipe', 'pipe'],
+                    },
+
+                );
+
+                const handleFFmepStreamError = (err) => 
+                    console.error(err);
+
+                forEach(streams, (stream, format) => {
+                    const dest = ffmpegProcess.stdio[pipes[format]]
+                    stream.pipe(dest).on('error', handleFFmepStreamError)
+                })
+
+                ffmpegProcess.stdio[pipes.out].pipe(res);
+                
+                let ffmpegLogs = ''
+                ffmpegProcess.stdio[pipes.err].on(
+                    'data',
+                    (chunk) => ffmpegLogs += chunk.toString(),
+                );
+
+                ffmpegProcess.on(
+                    'exit',
+                    (exitCode) => {
+                        if (exitCode === 1) {
+                            console.error(ffmpegLogs)
+                        }
+                        res.end();
+                    },
+                    );
+
+                    res.on(
+                        'close',
+                        () => ffmpegProcess.kill(),
+                    );
             })
         .catch(err => next(err))
-    }
+    },
 
 
-)
+);
 
 const port = 8000
 app.listen(
     port,
     () => console.log('Server listening on port ${port}')
-)
+);
