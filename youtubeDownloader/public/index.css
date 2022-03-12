@@ -1,0 +1,43 @@
+html {
+    font-size: 62.5%;
+}
+
+body {
+    max-width: 800px;
+    font-size: 1.8rem;
+    margin: 10vmin auto;
+    padding: 0 2rem;
+    line-height: 1.6;
+    background-color: #15171a;
+    color: #eee;
+}
+
+.input {
+    background-color: #1e2125;
+    border-radius: 4px;
+    height: 2.6em;
+    padding: 0 .9em;
+}
+
+.btn {
+    background-color: #09f;
+    border-radius: 4px;
+    height: 2.6em;
+    padding: 0 .8em;
+}
+
+.video.thumbnail {
+    max-width: 250px;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.mr-10 {
+    margin-right: 1rem;
+}

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+
+    <link rel="stylesheet" href="/index.css">
+    
+
+    <script src="/index.js" defer></script>
+
+</head>
+<body>
+    <div class="d-flex">
+        <input class="input video-url-input flex-1 mr-10" value="https://www.youtube.com/watch?v=btrzs54s1Rc">
+         <button class="btn start-btn"> Start </button>
+    </div>
+    <div class="d-none video-info-section">
+        <div class="d-flex ai-start">
+            <img src="" alt="" class="video-thumbnail mr-20">
+            <div>
+                <div class="video-title mb-20"></div>
+                <button class="rounded small-text btn download-btn">Download</button>
+            </div>
+        </div>
+    </div>
+    <div class="d-none video-formats-section">
+        <h2 class="section-title">Formats</h2>
+        <div class="d-flex gap-10">
+            <label class="custom-radio">
+                <input type="radio" name="format" value="video" checked>
+                <div class="custom-radio-btn">Video</div>
+            </label>
+            <label class="custom-radio">
+                <input type="radio" name="format" value="audio">
+                <div class="custom-radio-btn">Audio</div>
+            </label>
+        </div>
+    </div>
+    <div class="d-none video-resolutions-section">
+        <h2 class="section-title">Resolutions</h2>
+        <div class="resolutions d-flex gap-10"></div>
+    </div>
+</body>
+</html>

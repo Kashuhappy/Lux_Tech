@@ -1,16 +1,18 @@
 const express = require('express');
 const {chain, last, forEach} = require('lodash');
 const {validate, Joi} = require('express-validation');
+const fs = require('fs');
 const ytdl = require('ytdl-core');
 const {spawn} = require('child_process');
 const sanitize = require('sanitize-filename');
 const ffmpegPath = require('ffmpeg-static');
 
-const ytdl = require('ytdl-core');
 const { isDeepStrictEqual } = require('util');
 const { exitCode } = require('process');
 
 const app = express()
+
+app.use(express.static('public'))
 
 const getResolutions = formats =>
     chain('formats')
@@ -36,8 +38,6 @@ app.get(
                 
                 const thumbnailURL = last(thumbnails).url;
                 
-                const resolutions = getResolutions(formats);
-                
                 res.json(title, thumbnailURL, resolutions)
             })
             .catch(err => next(err));
@@ -57,9 +57,8 @@ app.get(
                     then: Joi.number().required()
                 }
             )
-            }
         })
-    }),
+        }),
     (req, res, next) => {
         const {id, format} = req.query
 
@@ -71,7 +70,7 @@ app.get(
                 if (format === 'video') {
                     const resolution = parseInt(req.query.resolution);
 
-                    const resolution = getResolutions(formats)
+                    const resolutions = getResolutions(formats);
 
                     if (resolutions.includes(resolution)) {
                         return next(new Error('Resolutions is incorrect'))
@@ -107,7 +106,7 @@ app.get(
                 const contentType = contentTypes[format]
                 const filename = '${encodeURI(sanitize(title))}.${ext}'
 
-                res.setHead er('Content-Type', contentType)
+                res.setHeader('Content-Type', contentType)
                 res.setHeader('Content-Disposition', 'attachment;filename=${filename}; filename*=utf=8','${filename}')
 
                 const pipes = {
@@ -191,10 +190,9 @@ app.get(
         .catch(err => next(err))
     },
 
-
 );
 
-const port = 8000
+const port = 7000
 app.listen(
     port,
     () => console.log('Server listening on port ${port}')
